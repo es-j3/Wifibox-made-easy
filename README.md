@@ -24,18 +24,22 @@ Open ```/usr/local/etc/wifibox/bhyve.conf``` to point to our wifi card. Find ```
 
 Now we need to edit ```wpa_supplicant.conf```. Run ```rm -rf /usr/local/etc/wifibox/wpa_supplicant/wpa_supplicant.conf && cp /etc/wpa_supplicant.conf /usr/local/etc/wifibox/wpa_supplicant/wpa_supplicant.conf``` to give the bhyve vm the right wifi info. 
 
-We finally got all of that out of the way, so let's do rc.conf tweaking now.
+First, put the following lines into rc.conf
 ```
-sysrc wifibox_enable="YES"
+wifibox_enable="YES"
 devmatch_enable="YES"
 devmatch_blocklist="if_iwm if_iwlwifi"
+ifconfig_wifibox0="SYNCDHCP"
+background_dhclient_wifibox0="YES"
+defaultroute_delay="0"
+```
+
+Now run these commands:
+```
 service devmatch start
 kldunload if_iwlwifi
 kldunload if_iwm
 service wifibox start
-sysrc ifconfig_wifibox0="SYNCDHCP"
-sysrc background_dhclient_wifibox0="YES"
-defaultroute_delay="0"
 service netif start wifibox0
 service routing restart
 service devd restart
